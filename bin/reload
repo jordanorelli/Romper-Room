@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+import os
+import subprocess
+
+project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+pidfile = '/var/tmp/romper-room.pid'
+subprocess.call('sudo kill -HUP `cat %s`' % pidfile, shell=True)
