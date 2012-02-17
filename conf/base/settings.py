@@ -73,7 +73,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'x^nvm7ezt%g1zxdxii7i32r5mc7srm-0!de30b5kz*zsic$lx%'
+SECRET_KEY = '5ncw_rd1&@@giph$&%b6%6bl3hl1#03enr0vndukrer4brk@x-'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -134,3 +134,10 @@ LOGGING = {
         },
     }
 }
+
+#-------------------------------------------------------------------------------
+# Foursquare deets
+#-------------------------------------------------------------------------------
+
+foursquare_client_id = JAOFY0MUFMYTZFHZOZ2GORU5S0X3AKUQD4MLUWYLXQ0QIDMY
+foursquare_client_secret = R0BOCEIGYM2VULCI15YLVRJWF11DQBT2VV4FRQR0H0BNL0AM
