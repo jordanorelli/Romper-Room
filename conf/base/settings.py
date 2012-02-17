@@ -108,7 +108,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
 
     'south',
-
+    'dj4sq',
     'main',
 )
 
@@ -139,5 +139,5 @@ LOGGING = {
 # Foursquare deets
 #-------------------------------------------------------------------------------
 
-foursquare_client_id = JAOFY0MUFMYTZFHZOZ2GORU5S0X3AKUQD4MLUWYLXQ0QIDMY
-foursquare_client_secret = R0BOCEIGYM2VULCI15YLVRJWF11DQBT2VV4FRQR0H0BNL0AM
+foursquare_client_id = 'JAOFY0MUFMYTZFHZOZ2GORU5S0X3AKUQD4MLUWYLXQ0QIDMY'
+foursquare_client_secret = 'R0BOCEIGYM2VULCI15YLVRJWF11DQBT2VV4FRQR0H0BNL0AM'
