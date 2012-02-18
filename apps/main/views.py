@@ -9,6 +9,3 @@ class HomeView(TemplateView):
                 'foursquare_oauth_token': user.foursquareuser.oauth_token
             })
         return context
-
-class ExploreView(View):
-    pass
