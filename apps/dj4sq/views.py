@@ -17,10 +17,14 @@ class OAuthReceiver(View):
             raise Exception("You're already logged in.")
         auth_code = request.GET['code']
         oauth_token = request_oauth_token(auth_code)
+        raw = get_self(oauth_token)
         try:
-            User.objects.get(foursquareuser__oauth_token=oauth_token)
+            user = User.objects.get(foursquareuser__id=raw['id'])
+            if user.foursquareuser.oauth_token != oauth_token:
+                user.foursquareuser.oauth_token = oauth_token
+                user.foursquareuser.save()
+
         except User.DoesNotExist:
-            raw = get_self(oauth_token)
             user = create_base_user(raw)
             foursquare_user = FoursquareUser(id=raw['id'], user=user,
                                              oauth_token=oauth_token)
