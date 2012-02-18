@@ -1,9 +1,70 @@
 {% extends 'base.html' %}
 {% load foursquare_tags %}
+
+{% block js %}
+{{ block.super }}
+<script src="{{ STATIC_URL }}js/mustache.js"></script>
+{% if user.is_authenticated %}
+
+<script>
+  $(document).ready(function() {
+  {% if foursquare_oauth_token %}
+    var renderGroup = function(group) {
+      var nameTag = '<span class="group-name">{{group.name}}</span>';
+    };
+
+    var explore = function(latitude, longitude) {
+      $.ajax({
+        type: "GET",
+        url: "https://api.foursquare.com/v2/venues/explore",
+        async: true,
+        cache: false,
+        timeout: 5000,
+        data: {
+          oauth_token: "{{ foursquare_oauth_token }}",
+          ll: latitude + ',' + longitude,
+        },
+        success: function(data) {
+          var response = data.response;
+          $('#json-response').text(JSON.stringify(response));
+          var groups = response.groups;
+          $.each(groups, function(i, group) {
+            renderGroup(group);
+          });
+          console.log("Success!");
+          console.log(data);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          $.each([XMLHttpRequest, textStatus, errorThrown], function(i, v) {
+            console.log(v);
+          });
+        }
+      });
+    };
+
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      var latitude  = pos.coords.latitude;
+      var longitude = pos.coords.longitude;
+      $('#longitude').html(longitude);
+       $('#latitude').html(latitude);
+
+      explore(latitude, longitude);
+    });
+  {% else %}
+    console.log("Didn't receive an oauth token.");
+  {% endif %}
+  });
+</script>
+{% endif %}
+{% endblock %}
+
 {% block body %}
 
 {% if user.is_authenticated %}
-  you are logged in.
+  you are logged in.<br />
+  latitude: <span id="latitude">&nbsp;</span><br />
+  longitude: <span id="longitude">&nbsp;</span>
+  <div id="json-response"></div>
   {% else %}
   <a href="{% foursquare_auth_uri %}">sign up using your foursquare account</a>
 {% endif %}
