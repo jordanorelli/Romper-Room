@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 {% load foursquare_tags %}
 {% block body %}
-<a href="{% foursquare_auth_uri %}">login with foursquare</a>
+
+{% if user.is_authenticated %}
+  you are logged in.
+  {% else %}
+  <a href="{% foursquare_auth_uri %}">sign up using your foursquare account</a>
+{% endif %}
+
 {% endblock %}
