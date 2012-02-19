@@ -7,28 +7,47 @@
 <script src="{{ STATIC_URL }}js/mustache.js"></script>
 {% if user.is_authenticated %}
 
+{% raw %}
+<script id="group-template" type="text/plain">
+  <div class="group">
+    <span class="group-name">{{group.name}}</span>
+    {{#group.items}}
+    <div class="venue">
+      <span class="venue-name">{{venue.name}}</span>
+    </div>
+    {{/group.items}}
+  </div>
+</script>
+{% endraw %}
+
 <script>
   $(document).ready(function() {
   {% if foursquare_oauth_token %}
-    var renderGroup = function(group) {
-      var nameTemplate = '<span class="group-name">{% raw %}{{name}}{% endraw %}</span>';
-      var nameTag = Mustache.to_html(nameTemplate, {name: group.name});
-      $('#venues').append(nameTag);
-      console.log(nameTag);
+    var groupTemplate = $('#group-template').html();
 
-      $('#venues').append('<ul>');
-      $.each(group.items, function(i, item) {
-        var itemTemplate = '<li>{% raw %}{{name}}{% endraw %}</li>';
-        var itemTag = Mustache.to_html(itemTemplate, {name: item.venue.name});
+    var render = function(target, template, context) {
+      $(target).append(Mustache.to_html(template, context));
+    };
 
-        $('#venues').append(itemTag);
-        console.log(item.venue.name);
-        console.log(itemTag);
+    var renderExploreResponse = function(response) {
+      $.each(response.groups, function(i, group) {
+        render('#venues', groupTemplate, {group: group})
       });
-      $('#venues').append('</ul>');
     };
 
     var explore = function(latitude, longitude) {
+      var ll = latitude + ',' + longitude;
+      var cachedResponse = sessionStorage.getItem(ll);
+
+      if(cachedResponse !== null) {
+        var response = JSON.parse(cachedResponse);
+        console.log("rendering explore results from cache.");
+        renderExploreResponse(response);
+        return;
+      };
+
+      console.log("no cached explore response found.");
+
       $.ajax({
         type: "GET",
         url: "https://api.foursquare.com/v2/venues/explore",
@@ -37,19 +56,11 @@
         timeout: 5000,
         data: {
           oauth_token: "{{ foursquare_oauth_token }}",
-          ll: latitude + ',' + longitude,
+          ll: ll
         },
         success: function(data) {
-          $('#json-response').text(JSON.stringify(response));
-          var response = data.response;
-          // console.log(response);
-          var groups = response.groups;
-          // console.log(groups);
-          $.each(groups, function(i, group) {
-            renderGroup(group);
-          });
-          console.log("Success!");
-          console.log(data);
+          renderExploreResponse(data.response);
+          sessionStorage.setItem(ll, JSON.stringify(data.response));
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           $.each([XMLHttpRequest, textStatus, errorThrown], function(i, v) {
@@ -62,11 +73,9 @@
     navigator.geolocation.getCurrentPosition(function(pos) {
       var latitude  = pos.coords.latitude;
       var longitude = pos.coords.longitude;
-      $('#longitude').html(longitude);
-       $('#latitude').html(latitude);
-
       explore(latitude, longitude);
     });
+
   {% else %}
     console.log("Didn't receive an oauth token.");
   {% endif %}
