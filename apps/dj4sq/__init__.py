@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from requests import get
 from urllib import urlencode
+from random import choice
+from string import letters, digits
 import json
 
 auth_base_uri = 'https://foursquare.com/oauth2/'
@@ -46,11 +48,14 @@ def get_self(oauth_token):
 def create_base_user(raw):
     """Given a raw user response from the foursquare API, creates, saves, and
     returns a corresponding local django.contrib.auth.models.User object."""
-    user = User(
-        first_name=raw['firstName'],
-        last_name=raw['lastName'],
-        email=raw['contact']['email'],
-        username=raw['contact']['email'][:30],
-    )
-    user.save()
-    return user
+    try:
+        return User.objects.get(email=raw['contact']['email'])
+    except User.DoesNotExist:
+        user = User(
+            first_name=raw['firstName'],
+            last_name=raw['lastName'],
+            email=raw['contact']['email'],
+            username=''.join([choice(letters+digits) for x in range(30)]),
+        )
+        user.save()
+        return user

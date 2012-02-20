@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load foursquare_tags %}
+{% load facebook_tags %}
 {% load raw %}
 
 {% block js %}
@@ -9,8 +10,8 @@
 
 {% raw %}
 <script id="group-template" type="text/plain">
-  <div class="group">
-    <span class="group-name">{{group.name}}</span>
+  <div class="venue-group">
+    <div class="name">{{group.name}}</div>
     {{#group.items}}
     <div class="venue">
       <span class="venue-name">{{venue.name}}</span>
@@ -30,8 +31,9 @@
     };
 
     var renderExploreResponse = function(response) {
+      $('#foursquare-signup').remove();
       $.each(response.groups, function(i, group) {
-        render('#venues', groupTemplate, {group: group})
+        render('#venue-container', groupTemplate, {group: group})
       });
     };
 
@@ -85,11 +87,25 @@
 {% endblock %}
 
 {% block body %}
-
-{% if user.is_authenticated %}
-  <div id="venues"></div>
-  {% else %}
-  <a href="{% foursquare_auth_uri %}">sign up using your foursquare account</a>
-{% endif %}
+<div class="container_12">
+  <div id="venue-container" class="grid_6">
+    <div id="foursquare-signup" class="signup-container">
+      {% if user.foursquareuser %}
+        fetching recommendations...
+      {% else %}
+        <a href="{% foursquare_auth_uri %}">foursquare</a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="grid_6" id="facebook">
+    <div id="facebook-signup" class="signup-container">
+      {% if user.facebookuser %}
+        we got your fb deets
+      {% else %}
+        <a href="{% facebook_auth_uri %}">facebook</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
 
 {% endblock %}
