@@ -19,12 +19,20 @@
     {{/group.items}}
   </div>
 </script>
+<script id="facebook-places-template" type="text/plain">
+  {{#places}}
+  <div class="place">
+    <span class="name">{{name}}</span>
+  </div>
+  {{/places}}
+</script>
 {% endraw %}
 
 <script>
   $(document).ready(function() {
-  {% if foursquare_oauth_token %}
+    var map;
     var groupTemplate = $('#group-template').html();
+    var placesTemplate = $('#facebook-places-template').html();
 
     var render = function(target, template, context) {
       $(target).append(Mustache.to_html(template, context));
@@ -34,7 +42,22 @@
       $('#foursquare-signup').remove();
       $.each(response.groups, function(i, group) {
         render('#venue-container', groupTemplate, {group: group})
+        $.each(group.items, function(i, item) {
+          var venue = item.venue;
+          var position = new google.maps.LatLng(venue.location.lat, venue.location.lng);
+          console.log(position);
+          var marker = new google.maps.Marker({
+            position: position,
+            map: map,
+            title: venue.name
+          });
+        });
       });
+    };
+
+    var renderPlaces = function(places) {
+      $('#facebook-signup').remove();
+      render('#places-container', placesTemplate, {places: places});
     };
 
     var explore = function(latitude, longitude) {
@@ -57,7 +80,7 @@
         cache: false,
         timeout: 5000,
         data: {
-          oauth_token: "{{ foursquare_oauth_token }}",
+          oauth_token: "{{ user.foursquareuser.oauth_token }}",
           ll: ll
         },
         success: function(data) {
@@ -72,15 +95,45 @@
       });
     };
 
+    var fblocations = function(latitude, longitude) {
+
+      $.ajax({
+        type: "GET",
+        url: "https://graph.facebook.com/search",
+        dataType: 'json',
+        data: {
+          type: 'place',
+          center: latitude + ',' + longitude,
+          distance: 1000,
+          access_token: '{{ user.facebookuser.oauth_token }}'
+        },
+        success: function(data) {
+          console.log("Success!");
+          console.log(data);
+          renderPlaces(data.data);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.log("ERROR");
+          console.log(XMLHttpRequest);
+          console.log(textStatus);
+          console.log(errorThrown);
+        }
+      });
+    };
+
     navigator.geolocation.getCurrentPosition(function(pos) {
       var latitude  = pos.coords.latitude;
       var longitude = pos.coords.longitude;
-      explore(latitude, longitude);
-    });
 
-  {% else %}
-    console.log("Didn't receive an oauth token.");
-  {% endif %}
+      map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 15,
+        center: new google.maps.LatLng(latitude, longitude),
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+      });
+
+      explore(latitude, longitude);
+      fblocations(latitude, longitude);
+    });
   });
 </script>
 {% endif %}
@@ -88,6 +141,9 @@
 
 {% block body %}
 <div class="container_12">
+  {% if user.is_authenticated %}
+  <div id="map" class="grid_12"></div>
+  {% endif %}
   <div id="venue-container" class="grid_6">
     <div id="foursquare-signup" class="signup-container">
       {% if user.foursquareuser %}
@@ -97,10 +153,11 @@
       {% endif %}
     </div>
   </div>
-  <div class="grid_6" id="facebook">
+  <div id="places-container" class="grid_6" id="facebook">
     <div id="facebook-signup" class="signup-container">
       {% if user.facebookuser %}
-        we got your fb deets
+        hide yo kids, hide yo wife, we got yo fb deets
+        <!-- {{ user.facebookuser.oauth_token }} -->
       {% else %}
         <a href="{% facebook_auth_uri %}">facebook</a>
       {% endif %}
