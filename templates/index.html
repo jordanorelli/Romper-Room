@@ -45,7 +45,6 @@
         $.each(group.items, function(i, item) {
           var venue = item.venue;
           var position = new google.maps.LatLng(venue.location.lat, venue.location.lng);
-          console.log(position);
           var marker = new google.maps.Marker({
             position: position,
             map: map,
@@ -57,6 +56,15 @@
 
     var renderPlaces = function(places) {
       $('#facebook-signup').remove();
+      console.log(places);
+      $.each(places, function(i, place) {
+        var position = new google.maps.LatLng(place.location.latitude, place.location.longitude);
+        var marker = new google.maps.Marker({
+          position: position,
+          map: map,
+          title: place.name
+        });
+      });
       render('#places-container', placesTemplate, {places: places});
     };
 
@@ -78,16 +86,19 @@
         url: "https://api.foursquare.com/v2/venues/explore",
         async: true,
         cache: false,
-        timeout: 5000,
+        timeout: 30000,
         data: {
           oauth_token: "{{ user.foursquareuser.oauth_token }}",
           ll: ll
         },
         success: function(data) {
+          console.log("Called foursquare successfully");
+          console.log(data);
           renderExploreResponse(data.response);
           sessionStorage.setItem(ll, JSON.stringify(data.response));
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.log("Failed to call foursquare.");
           $.each([XMLHttpRequest, textStatus, errorThrown], function(i, v) {
             console.log(v);
           });
@@ -96,7 +107,6 @@
     };
 
     var fblocations = function(latitude, longitude) {
-
       $.ajax({
         type: "GET",
         url: "https://graph.facebook.com/search",
@@ -108,12 +118,12 @@
           access_token: '{{ user.facebookuser.oauth_token }}'
         },
         success: function(data) {
-          console.log("Success!");
+          console.log("Called facebook succesfully");
           console.log(data);
           renderPlaces(data.data);
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-          console.log("ERROR");
+          console.log("Failed to call Facebook");
           console.log(XMLHttpRequest);
           console.log(textStatus);
           console.log(errorThrown);
