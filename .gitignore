@@ -1,2 +1,3 @@
 *.pyc
 conf/local/settings.py
+static/auto
