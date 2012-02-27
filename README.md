@@ -18,7 +18,7 @@ I added two sample backends, one for each of our OAuth providers.  This allows a
 
 ## Adding a {% raw %} tag to Django templates.
 
-I added a `{% raw %}` tag to the Django template engine to allow me to embed [Mustache templates](http://mustache.github.com/) into the front end.  The Mustache templates themselves are used for rendering the Foursquare and Facebook API responses to the DOM.  There's a reference to the implementation [here](https://gist.github.com/629508), where it is referred to as the "verbatim" tag.  I just renamed it to raw.  nbd.  I honestly don't know why this isn't included in the Django templating language to begin with; it seems like an oversight.
+I added a `{% raw %}` tag to the Django template engine to allow me to embed [Mustache templates](http://mustache.github.com/) into the front end.  The Mustache templates themselves are used for rendering the Foursquare and Facebook API responses to the DOM.  There's a reference to the implementation [here](https://gist.github.com/629508), where it is referred to as the "verbatim" tag.  I just renamed it to raw.  nbd.  I honestly don't know why this isn't included in the Django templating language to begin with; it seems like an oversight.  The implementation for the tag can be found in [`apps/main/templatetags/raw.py`](https://github.com/jordanorelli/Romper-Room/blob/master/apps/main/templatetags/raw.py).
 
 ## Embedding Mustache templates inside Django templates
 
