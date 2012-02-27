@@ -136,19 +136,3 @@ LOGGING = {
     }
 }
 
-#-------------------------------------------------------------------------------
-# Foursquare deets
-#-------------------------------------------------------------------------------
-
-FOURSQUARE_CLIENT_ID = 'JAOFY0MUFMYTZFHZOZ2GORU5S0X3AKUQD4MLUWYLXQ0QIDMY'
-FOURSQUARE_CLIENT_SECRET = 'R0BOCEIGYM2VULCI15YLVRJWF11DQBT2VV4FRQR0H0BNL0AM'
-FOURSQUARE_REDIRECT_URI = 'http://romper-room.jordanorelli.com:8000/oauth/foursquare'
-
-FACEBOOK_APP_ID = 305228329541456
-FACEBOOK_SECRET = '5b5ea0ce148b2d4f0792c9bc5938cfe4'
-FACEBOOK_REDIRECT_URI = 'http://romper-room.jordanorelli.com:8000/oauth/facebook'
-
-AUTHENTICATION_BACKENDS = (
-    'dj4sq.backends.FoursquareAuthBackend',
-    'fb.backends.FacebookAuthBackend',
-)
